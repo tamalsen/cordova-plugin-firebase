@@ -79,10 +79,14 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
             bundle.putString(key, data.get(key));
         }
         if (showNotification) {
-            Intent intent = new Intent(this, OnNotificationOpenReceiver.class);
+	    PackageManager packageManager = this.getPackageManager();
+
+            Intent intent = packageManager.getLaunchIntentForPackage(this.getPackageName());
+	    //new Intent(this, com.example.hello.MainActivity.class);
             intent.putExtras(bundle);
-            PendingIntent pendingIntent = PendingIntent.getBroadcast(this, id.hashCode(), intent,
-                    PendingIntent.FLAG_UPDATE_CURRENT);
+
+            //PendingIntent pendingIntent = PendingIntent.getBroadcast(this, id.hashCode(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
+	    PendingIntent pendingIntent = PendingIntent.getActivity(this, (int) System.currentTimeMillis(), intent, 0);
 
             Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
             NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
@@ -91,7 +95,9 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
                     .setStyle(new NotificationCompat.BigTextStyle().bigText(messageBody))
                     .setAutoCancel(true)
                     .setSound(defaultSoundUri)
-                    .setContentIntent(pendingIntent);
+                    .setContentIntent(pendingIntent)
+		    .setPriority(android.app.Notification.PRIORITY_HIGH);
+	    //if (android.os.Build.VERSION.SDK_INT >= 21) notificationBuilder.setVibrate(new long[]{0, 500, 110, 500, 110, 450, 110, 200, 110, 170, 40, 450, 110, 200, 110, 170, 40, 500});
 
             int resID = getResources().getIdentifier("notification_icon", "drawable", getPackageName());
             if (resID != 0) {
